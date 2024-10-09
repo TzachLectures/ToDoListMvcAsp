@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -11,27 +12,26 @@ namespace ToDoListMvcAsp.Controllers
 {
     public class TodoController : Controller
     {
+        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         private readonly ITodoService _todoService;
 
-        // Use constructor injection to get the ITodoService
         public TodoController(ITodoService todoService)
         {
             _todoService = todoService;
         }
-        // GET: Todo
         public ActionResult Index()
         {
+            _logger.Info("Accessed Todo Index page.");
             var todos = _todoService.GetAll();
             return View(todos);
         }
 
-        // GET: Todo/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: Todo/Create
         [HttpPost]
         public ActionResult Create([Bind(Include = "Title,Description,DueDate")]TodoItem todo)
         {
@@ -40,10 +40,11 @@ namespace ToDoListMvcAsp.Controllers
                 _todoService.Create(todo);
                 return RedirectToAction("Index");
             }
+            _logger.Info("New todo has been created.");
+
             return View(todo);
         }
 
-        // GET: Todo/Edit/5
         public ActionResult Edit(int id)
         {
             var todo = _todoService.GetById(id);
@@ -54,19 +55,19 @@ namespace ToDoListMvcAsp.Controllers
             return View(todo);
         }
 
-        // POST: Todo/Edit/5
         [HttpPost]
         public ActionResult Edit([Bind(Exclude = "DueDate")]TodoItem todo)
         {
             if (ModelState.IsValid)
             {
                 _todoService.Update(todo);
+                _logger.Info($"Todo {todo.Id} has been edited");
                 return RedirectToAction("Index");
             }
+
             return View(todo);
         }
 
-        // GET: Todo/Delete/5
         public ActionResult Delete(int id)
         {
             var todo = _todoService.GetById(id);
@@ -77,15 +78,15 @@ namespace ToDoListMvcAsp.Controllers
             return View(todo);
         }
 
-        // POST: Todo/Delete/5
         [HttpPost, ActionName("Delete")]
         public ActionResult DeleteConfirmed(int id)
         {
             _todoService.Delete(id);
+            _logger.Info($"Todo {id} has been deleted");
             return RedirectToAction("Index");
+
         }
 
-        // GET: Todo/Details/5
         public ActionResult Details(int? id)
         {
             if (id == null)

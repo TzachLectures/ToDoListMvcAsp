@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Autofac.Integration.Mvc;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +14,14 @@ namespace ToDoListMvcAsp
 {
     public class MvcApplication : System.Web.HttpApplication
     {
+        private static Logger _logger = LogManager.GetCurrentClassLogger();
+
         protected void Application_Start()
         {
+            LogManager.LoadConfiguration("NLog.config");
+
+            _logger.Info("Application started!");
+
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
